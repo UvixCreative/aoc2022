@@ -51,6 +51,7 @@ func parseStack(contents []uint8) [][]uint8 {
 		ret = append(ret, make([]uint8, 0))
 	}
 
+	/* Rotate table (kind of) */
 	for _, line := range lines {
 		for col, val := range line {
 			if (val != 0) {
@@ -64,13 +65,12 @@ func parseStack(contents []uint8) [][]uint8 {
 }
 
 func parseInstructions(contents []uint8) [][3]uint8 {
+	var ret [][3]uint8 /* Return value */
 	instStart := 0
 	stage := 0 /* 0=move, 1=from, 2=to */
 	var tmp uint8 = 0
 	parseNum := false /* Whether or not we are currently evaluating a number */
 	retIndex := 0
-
-	var ret [][3]uint8
 
 	/* Just find where to start */
 	for i, ch := range contents {
@@ -84,6 +84,7 @@ func parseInstructions(contents []uint8) [][3]uint8 {
 		}
 	}
 
+	/* Actually parse instructions */
 	for i := instStart; i < len(contents); i++ {
 		ch := contents[i]
 		if ('0' <= ch && ch <= '9') {
@@ -121,6 +122,32 @@ func main() {
 	stacks := parseStack(input)
 	instructions := parseInstructions(input)
 	
+	for _, inst := range instructions {
+		count, from, to := inst[0], inst[1] - 1, inst[2] - 1
+		var slice []uint8
+
+		if (count > uint8(len(stacks[from]))) {
+			count = uint8(len(stacks[from]))
+		}
+
+		fmt.Println("From before:")
+		fmt.Println(stacks[from])
+		fmt.Println("To before:")
+		fmt.Println(stacks[to])
+
+		fmt.Printf("Move %d from %d to %d\n", count, from, to)
+		/* Effectively "remove" a slice from the "From" stack */
+		slice, stacks[from] = stacks[from][:count], stacks[from][count:]
+
+		stacks[to] = append(slice, stacks[to]...)
+
+		fmt.Println("From after:")
+		fmt.Println(stacks[from])
+		fmt.Println("To after:")
+		fmt.Println(stacks[to])
+		fmt.Println()
+		
+	}
+
 	fmt.Println(stacks)
-	fmt.Println(instructions)
 }
