@@ -124,30 +124,23 @@ func main() {
 	
 	for _, inst := range instructions {
 		count, from, to := inst[0], inst[1] - 1, inst[2] - 1
-		var slice []uint8
 
+		/* Make sure we don't move more items than exist in the slice */
 		if (count > uint8(len(stacks[from]))) {
 			count = uint8(len(stacks[from]))
 		}
 
-		fmt.Println("From before:")
-		fmt.Println(stacks[from])
-		fmt.Println("To before:")
-		fmt.Println(stacks[to])
-
-		fmt.Printf("Move %d from %d to %d\n", count, from, to)
-		/* Effectively "remove" a slice from the "From" stack */
-		slice, stacks[from] = stacks[from][:count], stacks[from][count:]
-
-		stacks[to] = append(slice, stacks[to]...)
-
-		fmt.Println("From after:")
-		fmt.Println(stacks[from])
-		fmt.Println("To after:")
-		fmt.Println(stacks[to])
-		fmt.Println()
-		
+		/* Move as many items as provided by the instructions (count) */
+		for i := 0; i < int(count); i++ {
+			tmp := []uint8{stacks[from][0]}
+			stacks[to] = append(tmp, stacks[to]...)
+			stacks[from] = stacks[from][1:]
+		}
 	}
 
-	fmt.Println(stacks)
+	/* Print the letter at the start of each queue */
+	for i := 0; i < len(stacks); i++ {
+		fmt.Printf("%c", stacks[i][0])
+	}
+	fmt.Println()
 }
